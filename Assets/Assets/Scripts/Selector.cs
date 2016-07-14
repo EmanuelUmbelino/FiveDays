@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class Stamp : MonoBehaviour {
+public class Selector : MonoBehaviour {
 
     private bool isSelect;
     private bool onPaper;
@@ -10,7 +10,8 @@ public class Stamp : MonoBehaviour {
     private Vector3 mousePos;
 
     [SerializeField]
-    private bool isStamp;
+    private GameObject movedObject;
+
     [SerializeField]
     private bool approved;
 
@@ -18,17 +19,17 @@ public class Stamp : MonoBehaviour {
     void Start () {
 	
 	}
-    void OnCollisionEnter2D(Collision2D coll)
+    void OnTriggerEnter2D(Collider2D coll)
     {
-        if (coll.gameObject.tag.Equals("Paper") && this.tag != "Paper")
+        if (coll.gameObject.tag.Equals("Paper"))
         {
             onPaper = true;
-            paper = coll.gameObject;
+            paper = coll.transform.parent.gameObject;
         }
     }
-    void OnCollisionExit2D(Collision2D coll)
+    void OnTriggerExit2D(Collider2D coll)
     {
-        if (coll.gameObject.tag.Equals("Paper") && this.tag != "Paper")
+        if (coll.gameObject.tag.Equals("Paper"))
         {
             onPaper = false;
             paper = null;
@@ -70,12 +71,25 @@ public class Stamp : MonoBehaviour {
     void Update () {
         if (isSelect)
         {
-            mousePos = getWorldPosition(Input.mousePosition);
-            this.transform.position = new Vector3(mousePos.x,mousePos.y, 0);
-            if(this.tag.Equals("Paper"))
-                this.transform.position = new Vector3(mousePos.x, mousePos.y, 1);
+            if (movedObject != null)
+                FollowMouse(movedObject);
+            else
+                FollowMouse();
         }
     }
+
+    private void FollowMouse()
+    {
+        mousePos = getWorldPosition(Input.mousePosition);
+        this.transform.position = new Vector3(mousePos.x, mousePos.y, 0);
+    }
+
+    private void FollowMouse(GameObject i)
+    {
+        mousePos = getWorldPosition(Input.mousePosition);
+        i.transform.position = new Vector3(mousePos.x, mousePos.y, 0);
+    }
+
     // Following method calculates world's point from screen point as per camera's projection type
     public Vector3 getWorldPosition(Vector3 screenPos)
     {
